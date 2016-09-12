@@ -127,6 +127,5 @@ if __name__=="__main__":
 		else:
 			break
 	g=game(playersnum, b)
-	p1 = g.players[0]
 	g.playthegame()
 	
