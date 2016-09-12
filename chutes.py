@@ -115,6 +115,17 @@ class ladder(object):
 if __name__=="__main__":
 	b=board()
 	b.printboard()
+	while True:
+		try:
+			playersnum = int(input("How many players this time? "))
+		except ValueError:
+			print("Why would you do that?  Enter a number, douche canoe.")
+			continue
+
+		if playersnum < 1:
+			print("Sorry, purple doesn't fit enough elephants, and you're bad at numbers.  Try again.")
+		else:
+			break
 	g=game(2, b)
 	p1 = g.players[0]
 	g.playthegame()
