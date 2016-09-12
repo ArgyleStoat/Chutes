@@ -1,4 +1,5 @@
 from random import randint
+from math import floor, ceil, sqrt, log10
 
 #game
 class game(object):
@@ -47,13 +48,70 @@ class board(object):
 		 ]
 
 	def printboard(self):
-		tmp = ""
+		#result = log10(input) calculates 10**result = input.
+		#log10 is the inverse of raising 10 to a power of a number.
+		#Floor rounds down to whole number; Ceil rounds up to whole number
+		#Sqrt is square root. Helps build a square board
+
+		#int spaces is the number of decimal places
+		#to write the largest space number
+		intspaces = floor(log10(len(self.squares)+1))+1
+		board_side = ceil(sqrt(len(b.squares)))
+		#The code %% outputs literal %. Format code %d is preferred for
+		#numbers. Format code %04d will print 18 as '0018' by padding
+		#with 0s to be at least 4 characters.
+		#%%0%dd will format to replace the %% with % and the %d with a
+		#number, resulting in a string like "%05d". This format string
+		#can be used to pad out all space numbers to the same width
+		#string.
+		formatcode = "%%0%dd"%intspaces
+		#separator is the string that splits the rows. For rows that
+		#have a space that moves into the above row, the section of
+		#the separator over that cell will be ^ instead of -.
+		separator = "-"*((intspaces+5)*board_side + 1)
+		cell_width = intspaces+5
+
+		#The board is calculated from the bottom up, so we can not print
+		#each row as we calculate it. Each row will be prepended to this
+		#variable and printed at the end.
+		fullboard = ""
+		#Each cell is 2 lines on the termina: line 1 is the cell number,
+		#line 2 is extra data like if it is a chute/ladder, and target.
+		rowpt1, rowpt2 ="|", "|"
+		#The direction the row is filled in has to change each row.
+		dir_right = True
+
+		print(separator)
 		for i, square in enumerate(b.squares):
-			tmp += str(square)
-			if (i+1)%10==0:
-				print(tmp)
-				tmp=""
-		print (tmp)
+			if isinstance(square, space):
+				target = " "*intspaces
+			else:
+				target = formatcode%square.target
+
+			cell_pt1 = "  " + formatcode%(i+1) + "  "
+			cell_pt2 = " " + square.symbol + " " + target + " "
+			border = "|" if (i+1)%board_side==0 else ">" if dir_right else "<"
+			if dir_right:
+				rowpt1 += cell_pt1 + border
+				rowpt2 += cell_pt2 + border
+			else:
+				rowpt1 = border + cell_pt1 + rowpt1
+				rowpt2 = border + cell_pt2 + rowpt2
+
+			if (i+1)%board_side==0:
+				fullboard = rowpt1 + "\n" + rowpt2 + "\n" +\
+					    separator  + "\n" + fullboard
+				rowpt1, rowpt2 = "|", "|"
+				dir_right = not dir_right
+				if i+1 is len(b.squares):
+					#Do not put ^^^ on top separator
+					separator = "-"*((intspaces+5)*board_side + 1)
+				elif dir_right:
+					separator = "^"*cell_width + "-"*(cell_width*(board_side-1) + 1)
+				else:
+					separator = "-"*(cell_width*(board_side-1) + 1) + "^"*cell_width
+
+		print (fullboard)
 
 #player
 class player(object):
@@ -84,6 +142,7 @@ class player(object):
 
 #space
 class space(object):
+	symbol = " "
 	def __repr__(self):
 		return "[    ]"
 
@@ -92,22 +151,24 @@ class space(object):
 
 #chute
 class chute(object):
+	symbol = "v"
 	def __init__(self, target):
 		self.target = target
 
 	def __repr__(self):
-		return "[v %s]" %self.target
+		return "[%s %s]" %(self.symbol, self.target)
 
 	def totalspace(self):
 		return self.target
 
 #ladder
 class ladder(object):
+	symbol = "^"
 	def __init__(self, target):
 		self.target = target
 
 	def __repr__(self):
-		return "[^ %s]" %self.target
+		return "[%s %s]" %(self.symbol, self.target)
 
 	def totalspace(self):
 		return self.target
@@ -128,4 +189,3 @@ if __name__=="__main__":
 			break
 	g=game(playersnum, b)
 	g.playthegame()
-	
