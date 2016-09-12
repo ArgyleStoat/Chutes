@@ -126,7 +126,7 @@ if __name__=="__main__":
 			print("Sorry, purple doesn't fit enough elephants, and you're bad at numbers.  Try again.")
 		else:
 			break
-	g=game(2, b)
+	g=game(playersnum, b)
 	p1 = g.players[0]
 	g.playthegame()
 	
